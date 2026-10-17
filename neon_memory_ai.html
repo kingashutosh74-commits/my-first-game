@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Memory AI</title>
+<style>
+:root{--bg:#080b19;--panel:#111831;--line:#383f78;--cyan:#5cf4ff;--purple:#a78bfa;--green:#62ffc5;--pink:#ff70c5}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#343078 0%,#11152e 40%,var(--bg) 75%);color:#f6f7ff;font-family:Inter,Segoe UI,Arial,sans-serif;text-align:center;padding:20px;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(#8d8aff0b 1px,transparent 1px),linear-gradient(90deg,#8d8aff0b 1px,transparent 1px);background-size:36px 36px;mask-image:linear-gradient(to bottom,#000,transparent 90%)}
+main{max-width:980px;margin:auto;position:relative}
+.eyebrow{letter-spacing:4px;text-transform:uppercase;color:var(--cyan);font-size:12px;font-weight:800;margin-top:6px}
+h1{font-size:clamp(30px,6vw,54px);margin:8px 0;background:linear-gradient(90deg,#fff,var(--cyan),var(--purple));color:transparent;background-clip:text;text-shadow:0 0 28px #63f5ff20}
+.subtitle{color:#b9c2e8;margin:0 0 22px}
+.panel{background:#111831cc;border:1px solid #6269b35c;border-radius:22px;padding:16px;box-shadow:0 18px 55px #0006,inset 0 1px #ffffff12;backdrop-filter:blur(10px)}
+.scoreboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.score{padding:13px 8px;background:#0b1126;border:1px solid #3b477c;border-radius:15px}
+.score .label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#aab5df}
+.score strong{display:block;font-size:26px;margin-top:4px}
+.turnbar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px 0 14px}
+.pill{padding:9px 14px;border-radius:999px;border:1px solid #4b5488;background:#10152b;color:#d9e1ff;font-size:13px}
+.pill.active{border-color:var(--cyan);box-shadow:0 0 18px #5cf4ff35;color:var(--cyan)}
+#status{min-height:27px;color:#dce4ff;font-weight:600;margin:10px 0}
+#board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;max-width:720px;margin:14px auto 18px}
+.card{position:relative;aspect-ratio:1/1;min-width:0;border:1px solid #6768c8;border-radius:15px;background:linear-gradient(145deg,#292e68,#141a39);color:white;cursor:pointer;display:grid;place-items:center;box-shadow:0 7px 0 #080b1a,0 12px 18px #0005;transition:transform .18s,box-shadow .18s,border-color .18s;overflow:hidden}
+.card:before{content:"";position:absolute;inset:0;background:linear-gradient(125deg,#ffffff13,transparent 45%,#a78bfa16);pointer-events:none}
+.card .face{font-size:clamp(22px,4vw,38px);filter:drop-shadow(0 0 8px #b6faff33)}
+.card .back{font-size:clamp(20px,3vw,32px);color:#8c96e8;text-shadow:0 0 12px #8987ff}
+.card:hover:not(:disabled){transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 7px 0 #080b1a,0 0 22px #5cf4ff45}
+.card.revealed{background:linear-gradient(145deg,#075a78,#3d2b88);border-color:var(--cyan);box-shadow:0 0 20px #5cf4ff3d;animation:flip .22s ease-out}
+.card.matched{background:linear-gradient(145deg,#075b54,#123b45);border-color:var(--green);box-shadow:0 0 18px #62ffc540;cursor:default;animation:match .3s ease-out}
+.card:disabled{cursor:default}
+@keyframes flip{from{transform:rotateY(75deg) scale(.9)}to{transform:rotateY(0) scale(1)}}
+@keyframes match{50%{transform:scale(1.08)}}
+.controls{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+button.action{border:0;border-radius:12px;padding:12px 17px;font-weight:800;cursor:pointer;color:#08101e;background:linear-gradient(90deg,var(--cyan),#9bdcff);box-shadow:0 5px 0 #236a88;transition:transform .15s}
+button.action:hover{transform:translateY(-2px)}
+button.action.secondary{background:linear-gradient(90deg,#c6b5ff,var(--purple));box-shadow:0 5px 0 #57419a}
+button.action.dark{background:#1b2445;color:#e3e8ff;border:1px solid #4b5689;box-shadow:0 5px 0 #090e20}
+.note{font-size:12px;color:#909bc7;line-height:1.6;margin:15px auto 0;max-width:650px}
+#thinking{color:var(--purple);font-size:12px;min-height:18px;letter-spacing:1px}
+@media(max-width:560px){body{padding:12px 8px}.panel{padding:10px;border-radius:17px}#board{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:390px}.card{border-radius:12px}.scoreboard{gap:6px}.score{padding:10px 4px}.score strong{font-size:22px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Neural arcade • player vs machine</div>
+  <h1>NEON MEMORY <span style="font-size:.65em">AI</span></h1>
+  <p class="subtitle">Remember the symbols. Outsmart the machine.</p>
+
+  <section class="panel">
+    <div class="scoreboard">
+      <div class="score"><span class="label">You</span><strong id="playerScore">0</strong></div>
+      <div class="score"><span class="label">Pairs left</span><strong id="pairsLeft">12</strong></div>
+      <div class="score"><span class="label">Smart AI</span><strong id="aiScore">0</strong></div>
+    </div>
+    <div class="turnbar">
+      <span id="playerPill" class="pill active">👤 Your turn</span>
+      <span id="aiPill" class="pill">🤖 AI turn</span>
+      <span class="pill">Moves: <b id="moves">0</b></span>
+    </div>
+    <div id="status" role="status">Your turn! Flip any two cards to find a pair.</div>
+    <div id="thinking"></div>
+    <div id="board" aria-label="Memory card board"></div>
+    <div class="controls">
+      <button class="action" onclick="newGame()">↻ New Game</button>
+      <button class="action secondary" id="soundButton" onclick="toggleSound()">🔊 Sound ON</button>
+    </div>
+    <p class="note">How to play: You flip two cards. If they match, you score a point and play again. The AI follows the same rules and remembers the cards it has seen. Highest score wins!</p>
+  </section>
+</main>
+<script>
+const SYMBOLS=["🚀","🎮","👑","💎","🐉","⚡","🦊","🌟","🪐","🧿","🔥","🦄"];
+let cards=[], playerTurn=true, locked=false, playerScore=0, aiScore=0, moves=0, pairsRemaining=12;
+let firstIndex=null, aiMemory=new Map(), soundOn=true, audioContext=null, gameOver=false, turnToken=0;
+
+const $=id=>document.getElementById(id);
+function audioReady(){try{audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();if(audioContext.state==="suspended")audioContext.resume();return audioContext}catch(e){return null}}
+function beep(freq=440,duration=.11,wave="sine",volume=.055){
+  if(!soundOn)return;const ac=audioReady();if(!ac)return;
+  const o=ac.createOscillator(),g=ac.createGain();o.type=wave;o.frequency.setValueAtTime(freq,ac.currentTime);
+  g.gain.setValueAtTime(volume,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+duration);
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+duration);
+}
+function sound(kind){
+  if(kind==="flip")beep(360,.07,"triangle");
+  if(kind==="match"){beep(620,.12);setTimeout(()=>beep(880,.16),80)}
+  if(kind==="miss"){beep(180,.12,"sine",.04)}
+  if(kind==="win"){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.22),i*100))}
+}
+function toggleSound(){soundOn=!soundOn;$("soundButton").textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";if(soundOn)beep(650)}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function newGame(){
+  turnToken++;cards=shuffle([...SYMBOLS,...SYMBOLS]).map((symbol,index)=>({symbol,index,matched:false}));
+  playerTurn=true;locked=false;playerScore=0;aiScore=0;moves=0;pairsRemaining=SYMBOLS.length;firstIndex=null;aiMemory=new Map();gameOver=false;
+  $("status").textContent="Your turn! Flip any two cards to find a pair.";
+  $("thinking").textContent="";renderBoard();updateUI();
+}
+function renderBoard(){
+  const board=$("board");board.innerHTML="";
+  cards.forEach((card,i)=>{
+    const b=document.createElement("button");b.className="card";b.type="button";b.dataset.index=i;
+    b.innerHTML='<span class="back">✦</span>';b.setAttribute("aria-label","Hidden card");
+    b.onclick=()=>playerFlip(i);board.appendChild(b);card.element=b;
+  });
+}
+function reveal(i,rememberForAI=false){
+  const c=cards[i],b=c.element;if(c.matched)return;
+  b.classList.add("revealed");b.innerHTML='<span class="face">'+c.symbol+'</span>';b.setAttribute("aria-label",c.symbol);b.disabled=true;
+  if(rememberForAI)remember(i,c.symbol);
+  sound("flip");
+}
+function hide(i){const c=cards[i];if(c.matched)return;const b=c.element;b.classList.remove("revealed");b.innerHTML='<span class="back">✦</span>';b.setAttribute("aria-label","Hidden card");b.disabled=false}
+function remember(i,symbol){if(!aiMemory.has(symbol))aiMemory.set(symbol,[]);const arr=aiMemory.get(symbol);if(!arr.includes(i)&&!cards[i].matched)arr.push(i)}
+function removeMemory(i){for(const [symbol,arr] of aiMemory){aiMemory.set(symbol,arr.filter(n=>n!==i))}}
+function updateUI(){
+  $("playerScore").textContent=playerScore;$("aiScore").textContent=aiScore;$("pairsLeft").textContent=pairsRemaining;$("moves").textContent=moves;
+  $("playerPill").classList.toggle("active",playerTurn&&!gameOver);$("aiPill").classList.toggle("active",!playerTurn&&!gameOver);
+}
+function playerFlip(i){
+  if(gameOver||locked||!playerTurn||cards[i].matched||i===firstIndex)return;
+  audioReady();reveal(i,false);
+  if(firstIndex===null){firstIndex=i;return}
+  const a=firstIndex,b=i;firstIndex=null;moves++;updateUI();
+  if(cards[a].symbol===cards[b].symbol){resolveMatch(a,b,"player");}
+  else{
+    locked=true;$("status").textContent="No match. The AI is studying the board…";
+    // The AI sees your revealed cards too, just like an opponent watching the game.
+    remember(a,cards[a].symbol);remember(b,cards[b].symbol);
+    const token=turnToken;
+    setTimeout(()=>{if(token!==turnToken)return;hide(a);hide(b);locked=false;playerTurn=false;updateUI();aiTurn(token)},850);
+  }
+}
+function resolveMatch(a,b,who){
+  cards[a].matched=cards[b].matched=true;cards[a].element.classList.add("matched");cards[b].element.classList.add("matched");
+  cards[a].element.disabled=true;cards[b].element.disabled=true;removeMemory(a);removeMemory(b);
+  pairsRemaining--;if(who==="player")playerScore++;else aiScore++;
+  sound("match");$("status").textContent=who==="player"?"✨ Match! You get another turn.":"🤖 AI found a pair and gets another turn!";
+  updateUI();
+  if(pairsRemaining===0){finishGame();return}
+  if(who==="player"){playerTurn=true;updateUI()}
+  else {playerTurn=false;updateUI();const token=turnToken;setTimeout(()=>aiTurn(token),650)}
+}
+function finishGame(){
+  gameOver=true;locked=true;updateUI();
+  if(playerScore>aiScore){$("status").textContent=`🏆 YOU WIN! ${playerScore} – ${aiScore}`;sound("win")}
+  else if(aiScore>playerScore){$("status").textContent=`🤖 AI WINS! ${aiScore} – ${playerScore}. Try again!`;sound("miss")}
+  else {$("status").textContent=`🤝 DRAW! Both scored ${playerScore}.`;sound("match")}
+  $("thinking").textContent="Game complete";
+}
+function aiTurn(token){
+  if(token!==turnToken||gameOver)return;
+  playerTurn=false;locked=true;updateUI();$("status").textContent="🤖 Smart AI is thinking…";$("thinking").textContent="SCANNING MEMORY • ANALYSING PAIRS";
+  setTimeout(()=>{if(token!==turnToken||gameOver)return;aiChooseFirst(token)},650);
+}
+function available(){return cards.map((c,i)=>i).filter(i=>!cards[i].matched&&!cards[i].element.classList.contains("revealed"))}
+function knownPair(){
+  for(const [symbol,arr] of aiMemory){
+    const valid=arr.filter(i=>!cards[i].matched&&!cards[i].element.classList.contains("revealed"));
+    if(valid.length>=2)return [valid[0],valid[1]];
+  }return null;
+}
+function aiChooseFirst(token){
+  if(token!==turnToken||gameOver)return;
+  let pair=knownPair(),i;
+  if(pair){i=pair[0];$("thinking").textContent="MEMORY MATCH FOUND"}
+  else{
+    const opts=available();if(!opts.length){finishGame();return}
+    i=opts[Math.floor(Math.random()*opts.length)];$("thinking").textContent="SEARCHING UNKNOWN CARDS";
+  }
+  aiRevealAndContinue(i,token);
+}
+function aiRevealAndContinue(i,token){
+  if(token!==turnToken||gameOver)return;
+  reveal(i,true);const symbol=cards[i].symbol;
+  // If a matching card is known, choose it immediately.
+  const known=(aiMemory.get(symbol)||[]).find(j=>j!==i&&!cards[j].matched&&!cards[j].element.classList.contains("revealed"));
+  setTimeout(()=>{
+    if(token!==turnToken||gameOver)return;
+    let j=known;
+    if(j===undefined){
+      const opts=available().filter(n=>n!==i);
+      if(!opts.length){locked=false;playerTurn=true;updateUI();return}
+      j=opts[Math.floor(Math.random()*opts.length)];
+    }
+    reveal(j,true);moves++;updateUI();
+    if(cards[i].symbol===cards[j].symbol)resolveMatch(i,j,"ai");
+    else{
+      remember(i,cards[i].symbol);remember(j,cards[j].symbol);sound("miss");
+      $("status").textContent="AI found no pair. Your turn next!";
+      $("thinking").textContent="MEMORY UPDATED";
+      setTimeout(()=>{if(token!==turnToken||gameOver)return;hide(i);hide(j);locked=false;playerTurn=true;$("thinking").textContent="";updateUI();},850);
+    }
+  },550);
+}
+newGame();
+</script>
+</body>
+</html>

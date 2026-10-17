@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPS - Battle Arena</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;padding:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:Arial,sans-serif;color:white;
+  background:radial-gradient(ellipse at top,#29205c,#090914 70%);
+  overflow-x:hidden
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(#ffffff08 1px,transparent 1px),
+  linear-gradient(90deg,#ffffff08 1px,transparent 1px);
+  background-size:30px 30px;animation:grid 12s linear infinite
+}
+@keyframes grid{to{background-position:30px 30px}}
+@keyframes float{to{transform:translateY(-20px) scale(1.1)}}
+@keyframes pop{0%{transform:scale(.5) rotate(-15deg)}
+70%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1)}}
+@keyframes glow{50%{box-shadow:0 0 35px #00f5ff99}}
+@keyframes blink{50%{opacity:.4}}
+@keyframes bounce{to{transform:translateY(-12px) rotate(8deg)}}
+@keyframes enter{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fall{to{transform:translateY(650px) rotate(700deg);opacity:0}}
+
+.orb{position:fixed;width:220px;height:220px;border-radius:50%;
+filter:blur(100px);opacity:.5;pointer-events:none;animation:float 5s infinite alternate}
+.orb1{background:#7c3aed;top:0;left:0}
+.orb2{background:#ec4899;bottom:0;right:0;animation-delay:-2s}
+
+.game{
+  position:relative;width:100%;max-width:580px;padding:25px;
+  background:#101020ed;border:1px solid #454576;
+  border-radius:25px;box-shadow:0 0 50px #7c3aed20;
+  animation:enter .7s ease;overflow:hidden
+}
+.top,.bottom{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.live{color:#63ffbb;font-size:11px;letter-spacing:2px}
+.live:before{content:"● ";animation:blink 1s infinite}
+.sound,.reset{
+  padding:10px 12px;border-radius:10px;cursor:pointer;
+  background:#20203b;color:#00f5ff;border:1px solid #45456c
+}
+h1{text-align:center;font-size:clamp(27px,6vw,42px);
+  line-height:1.15;letter-spacing:2px;margin:28px 0 8px}
+h1 span{color:#00f5ff;text-shadow:0 0 20px #00f5ff66}
+.sub{text-align:center;color:#a7a7d0;font-size:11px;letter-spacing:4px;margin-bottom:25px}
+
+.scoreboard{display:flex;align-items:center;justify-content:space-around;
+  background:linear-gradient(110deg,#151d36,#26152f);
+  padding:18px 5px;border:1px solid #343455;border-radius:18px}
+.player{text-align:center;width:40%}
+.avatar{font-size:27px;margin-bottom:8px}
+.player p{font-size:10px;letter-spacing:1px;color:#aaaacb}
+.score{font-size:36px;font-weight:bold;color:#00f5ff}
+.player:last-child .score{color:#ff4fa3}
+.vs{font-weight:900;color:#ff62bb;text-shadow:0 0 15px #ff62bb}
+
+.round{text-align:center;color:#aaaaca;font-size:10px;letter-spacing:2px;margin:23px 0}
+#round{color:#00f5ff}
+
+.battle{display:flex;align-items:center;justify-content:space-around;
+  padding:22px 5px;background:radial-gradient(ellipse,#202044,#121222);
+  border:1px solid #343454;border-radius:18px}
+.fighter{text-align:center;width:38%}
+.hand{height:95px;width:95px;max-width:100%;margin:auto;
+  display:grid;place-items:center;font-size:48px;
+  background:#151d30;border:1px solid #00f5ff55;border-radius:22px;
+  box-shadow:0 0 20px #00f5ff0d}
+.fighter:last-child .hand{border-color:#ff4fa366}
+.fighter p{font-size:10px;letter-spacing:1px;color:#b6b6d5}
+.versus{font-size:12px;font-weight:bold;color:#ff4fa3}
+.pop{animation:pop .45s ease}
+.winner{animation:glow .7s ease 3}
+
+#message{text-align:center;color:#00f5ff;font-size:20px;margin:25px 0 8px}
+#instruction{text-align:center;color:#b1b1cf;margin:0 0 20px;font-size:14px}
+
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.choice{padding:16px 4px;display:flex;flex-direction:column;align-items:center;
+  gap:8px;background:#19192f;border:1px solid #424262;border-radius:15px;
+  color:white;cursor:pointer;transition:.2s}
+.choice span{font-size:34px}
+.choice b{font-size:11px;letter-spacing:1px}
+.choice small{font-size:9px;letter-spacing:2px;color:#aaaaca}
+.choice:hover{transform:translateY(-6px);background:#29294a;box-shadow:0 0 22px #7c3aed44}
+.choice:active{transform:scale(.94)}
+.choice:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.bottom{border-top:1px solid #34344a;margin-top:22px;padding-top:17px}
+.bottom span{font-size:9px;letter-spacing:1px;color:#aaaaca}
+.reset{color:#ff86c3;border-color:#633252}
+.reset:hover{background:#3b203c}
+
+.overlay{position:absolute;inset:0;z-index:5;display:grid;place-items:center;
+  padding:20px;background:#080815eF;backdrop-filter:blur(8px)}
+.hidden{display:none}
+.card{text-align:center;width:100%;max-width:360px;padding:28px 15px;
+  background:#17172e;border:1px solid #00f5ff;border-radius:22px;
+  box-shadow:0 0 40px #00f5ff22;animation:enter .4s ease}
+.trophy{font-size:60px;animation:bounce .6s infinite alternate}
+.card h2{color:#00f5ff;font-size:23px}
+.card p{color:#b8b8d3;line-height:1.5}
+.card button{padding:14px 18px;background:#00e5f5;color:#090914;
+  border:0;border-radius:10px;font-weight:bold;cursor:pointer}
+.confetti{position:absolute;top:-15px;width:9px;height:14px;
+  pointer-events:none;animation:fall 2.4s linear forwards}
+
+@media(max-width:400px){
+  .game{padding:17px 12px}
+  .hand{height:72px;font-size:36px}
+  .choice span{font-size:28px}
+  .choice b{font-size:9px}
+  h1{letter-spacing:1px}
+}
+</style>
+</head>
+
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<main class="game">
+  <div class="top">
+    <span class="live">LIVE BATTLE</span>
+    <button class="sound" id="sound" onclick="toggleSound()">🔊 SOUND ON</button>
+  </div>
+
+  <h1>ROCK <span>PAPER</span><br>SCISSORS</h1>
+  <div class="sub">⚡ THE ULTIMATE DUEL ⚡</div>
+
+  <div class="scoreboard">
+    <div class="player">
+      <div class="avatar">👑</div>
+      <p>PLAYER 01</p>
+      <div class="score" id="score1">0</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="player">
+      <div class="avatar">🔥</div>
+      <p>PLAYER 02</p>
+      <div class="score" id="score2">0</div>
+    </div>
+  </div>
+
+  <div class="round" id="round">ROUND 01 · FIRST TO 5 WINS</div>
+
+  <div class="battle">
+    <div class="fighter">
+      <div class="hand" id="hand1">❔</div>
+      <p id="name1">PLAYER 01</p>
+    </div>
+    <div class="versus">VS</div>
+    <div class="fighter">
+      <div class="hand" id="hand2">❔</div>
+      <p id="name2">PLAYER 02</p>
+    </div>
+  </div>
+
+  <h2 id="message">READY TO FIGHT?</h2>
+  <p id="instruction">Player 1, choose your weapon!</p>
+
+  <div class="choices">
+    <button class="choice" onclick="play('Rock')">
+      <span>✊</span><b>ROCK</b><small>STRONG</small>
+    </button>
+    <button class="choice" onclick="play('Paper')">
+      <span>✋</span><b>PAPER</b><small>SMART</small>
+    </button>
+    <button class="choice" onclick="play('Scissors')">
+      <span>✌️</span><b>SCISSORS</b><small>FAST</small>
+    </button>
+  </div>
+
+  <div class="bottom">
+    <span>🏆 WINNER TAKES THE GLORY</span>
+    <button class="reset" onclick="resetGame()">↻ RESTART</button>
+  </div>
+
+  <div class="overlay hidden" id="overlay">
+    <div class="card">
+      <div class="trophy">🏆</div>
+      <h2 id="winTitle">CHAMPION!</h2>
+      <p id="winText"></p>
+      <button onclick="resetGame()">PLAY AGAIN →</button>
+    </div>
+  </div>
+</main>
+
+<script>
+let s1=0,s2=0,round=1,p1="",turn=1,finished=false,soundOn=true;
+let audio;
+
+const icons={Rock:"✊",Paper:"✋",Scissors:"✌️"};
+
+function playSound(type){
+  if(!soundOn)return;
+  try{
+    audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+    if(audio.state==="suspended")audio.resume();
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    osc.connect(gain);gain.connect(audio.destination);
+    let freq=type==="win"?700:type==="draw"?350:240;
+    osc.frequency.setValueAtTime(freq,audio.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq*1.4,audio.currentTime+.15);
+    gain.gain.setValueAtTime(.12,audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.25);
+    osc.start();osc.stop(audio.currentTime+.25);
+  }catch(e){}
+}
+
+function toggleSound(){
+  soundOn=!soundOn;
+  document.getElementById("sound").textContent=soundOn?"🔊 SOUND ON":"🔇 SOUND OFF";
+  if(soundOn)playSound("win");
+}
+
+function animateHand(id,icon){
+  const el=document.getElementById(id);
+  el.textContent=icon;
+  el.classList.remove("pop","winner");
+  void el.offsetWidth;
+  el.classList.add("pop");
+}
+
+function play(choice){
+  if(finished)return;
+
+  if(turn===1){
+    p1=choice;
+    turn=2;
+    document.getElementById("hand1").textContent="🔒";
+    document.getElementById("hand2").textContent="❔";
+    animateHand("hand1","🔒");
+    document.getElementById("name1").textContent="LOCKED IN!";
+    document.getElementById("message").textContent="PLAYER 1 LOCKED!";
+    document.getElementById("instruction").textContent="Player 2, choose your weapon!";
+    playSound("select");
+    return;
+  }
+
+  const p2=choice;
+  animateHand("hand1",icons[p1]);
+  animateHand("hand2",icons[p2]);
+
+  document.getElementById("name1").textContent="PLAYER 01";
+  document.getElementById("name2").textContent="PLAYER 02";
+
+  let msg;
+  if(p1===p2){
+    msg="🤝 IT'S A DRAW!";
+    playSound("draw");
+  }else if(
+    (p1==="Rock"&&p2==="Scissors")||
+    (p1==="Paper"&&p2==="Rock")||
+    (p1==="Scissors"&&p2==="Paper")
+  ){
+    s1++;msg="⚡ PLAYER 1 WINS!";
+    document.getElementById("hand1").classList.add("winner");
+    playSound("win");
+  }else{
+    s2++;msg="🔥 PLAYER 2 WINS!";
+    document.getElementById("hand2").classList.add("winner");
+    playSound("win");
+  }
+
+  document.getElementById("score1").textContent=s1;
+  document.getElementById("score2").textContent=s2;
+  document.getElementById("round").textContent=
+    "ROUND "+String(round).padStart(2,"0")+" · FIRST TO 5 WINS";
+  document.getElementById("message").textContent=msg;
+  document.getElementById("instruction").textContent="Player 1, choose your next move!";
+
+  round++;turn=1;
+
+  if(s1>=5||s2>=5){
+    finished=true;
+    document.getElementById("instruction").textContent="The battle is over!";
+    setTimeout(showWinner,500);
+  }
+}
+
+function showWinner(){
+  const winner=s1>=5?"PLAYER 1":"PLAYER 2";
+  document.getElementById("winTitle").textContent=winner+" WINS!";
+  document.getElementById("winText").textContent=
+    "Final score: "+s1+" - "+s2+". The champion takes the glory!";
+  document.getElementById("overlay").classList.remove("hidden");
+  playSound("win");
+  confetti();
+}
+
+function confetti(){
+  const game=document.querySelector(".game");
+  const colors=["#00f5ff","#ff3cac","#ffe66d","#8b5cf6","#6affbd"];
+  for(let i=0;i<70;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*100+"%";
+    c.style.animationDelay=Math.random()*1.1+"s";
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    game.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+}
+
+function resetGame(){
+  s1=0;s2=0;round=1;p1="";turn=1;finished=false;
+  document.getElementById("score1").textContent="0";
+  document.getElementById("score2").textContent="0";
+  document.getElementById("round").textContent="ROUND 01 · FIRST TO 5 WINS";
+  document.getElementById("hand1").textContent="❔";
+  document.getElementById("hand2").textContent="❔";
+  document.getElementById("name1").textContent="PLAYER 01";
+  document.getElementById("name2").textContent="PLAYER 02";
+  document.getElementById("message").textContent="READY TO FIGHT?";
+  document.getElementById("instruction").textContent="Player 1, choose your weapon!";
+  document.getElementById("overlay").classList.add("hidden");
+  document.querySelectorAll(".hand").forEach(h=>h.classList.remove("pop","winner"));
+  document.querySelectorAll(".confetti").forEach(c=>c.remove());
+  playSound("select");
+}
+</script>
+</body>
+</html>

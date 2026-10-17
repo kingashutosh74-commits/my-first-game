@@ -1,0 +1,710 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudoku Pro</title>
+
+<style>
+* { box-sizing: border-box; }
+
+:root {
+  --bg: #080d1c;
+  --panel: #111a30;
+  --cell: #15213b;
+  --line: #30415f;
+  --cyan: #52e5ff;
+  --purple: #a78bfa;
+  --text: #f1f5ff;
+  --muted: #91a2c5;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  background:
+    radial-gradient(ellipse at 15% 0%, #192b52 0, transparent 38%),
+    radial-gradient(ellipse at 100% 80%, #29164c 0, transparent 35%),
+    var(--bg);
+}
+
+button, select { font: inherit; }
+
+button {
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px max(5%, calc((100% - 1100px)/2));
+  border-bottom: 1px solid #ffffff12;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.logo span { color: var(--cyan); }
+
+.tagline { color: var(--muted); font-size: 12px; margin-top: 5px; }
+
+.pill {
+  border: 1px solid #52e5ff55;
+  border-radius: 30px;
+  color: var(--cyan);
+  background: #52e5ff10;
+  padding: 9px 13px;
+  font-size: 12px;
+}
+
+main {
+  max-width: 1100px;
+  padding: 30px 20px 45px;
+  margin: auto;
+}
+
+.hero { margin-bottom: 25px; }
+
+.hero h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  margin: 0 0 8px;
+  letter-spacing: -1.5px;
+}
+
+.hero h1 span {
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero p { color: var(--muted); margin: 0; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(255px, .8fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.panel {
+  background: linear-gradient(145deg, #17223b, #0f172a);
+  border: 1px solid #ffffff12;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 20px 60px #0003;
+}
+
+.board-top, .stats, .side-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.board-top { margin-bottom: 17px; }
+
+.label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+select {
+  background: #1b2945;
+  color: var(--text);
+  border: 1px solid #ffffff1a;
+  border-radius: 10px;
+  padding: 10px;
+  outline: none;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  aspect-ratio: 1;
+  border: 2px solid var(--cyan);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 22px #52e5ff16;
+}
+
+.cell {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--cell);
+  color: #d5e7ff;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  font-size: clamp(13px, 2.5vw, 25px);
+}
+
+.cell:nth-child(3n) { border-right: 2px solid #6a7eaa; }
+.cell:nth-child(9n) { border-right: 0; }
+.cell:nth-child(n+19):nth-child(-n+27),
+.cell:nth-child(n+46):nth-child(-n+54) {
+  border-bottom: 2px solid #6a7eaa;
+}
+.cell:nth-child(n+73) { border-bottom: 0; }
+
+.cell.given { color: #ffffff; font-weight: 800; }
+.cell.selected { background: #31517b; box-shadow: inset 0 0 0 2px var(--cyan); }
+.cell.related { background: #213653; }
+.cell.same { background: #2b4770; color: var(--cyan); }
+.cell.wrong { color: #ff7b9b; background: #582238; }
+.cell:focus-visible { outline: 2px solid white; outline-offset: -3px; }
+
+.notes {
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--cyan);
+  overflow-wrap: anywhere;
+}
+
+.stats { margin: 18px 0; }
+
+.stat {
+  background: #ffffff06;
+  border: 1px solid #ffffff0d;
+  border-radius: 12px;
+  padding: 12px 8px;
+  flex: 1;
+  text-align: center;
+}
+
+.stat strong { display: block; font-size: 20px; margin-bottom: 5px; }
+.stat span { font-size: 10px; color: var(--muted); }
+
+.section-title { font-size: 13px; margin: 22px 0 12px; }
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 6px;
+}
+
+.num {
+  color: var(--cyan);
+  background: #52e5ff10;
+  border: 1px solid #52e5ff32;
+  border-radius: 9px;
+  padding: 12px 0;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.num:disabled { opacity: .2; cursor: default; }
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.action {
+  color: #dce7ff;
+  background: #ffffff08;
+  border: 1px solid #ffffff18;
+  border-radius: 11px;
+  padding: 12px 8px;
+  font-size: 12px;
+}
+
+.action.active { background: #52e5ff18; border-color: var(--cyan); color: var(--cyan); }
+
+.primary {
+  width: 100%;
+  margin-top: 12px;
+  color: #071321;
+  background: linear-gradient(100deg, var(--cyan), #a6a1ff);
+  border: 0;
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 850;
+}
+
+.message {
+  min-height: 22px;
+  margin-top: 13px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.message.good { color: #67f5b2; }
+.message.bad { color: #ff91aa; }
+
+.progress {
+  height: 5px;
+  background: #ffffff12;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+#progress {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  transition: width .3s;
+}
+
+.side-heading { margin-bottom: 15px; }
+
+.side-heading h2 { font-size: 18px; margin: 0; }
+
+.rules {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+.tip {
+  margin-top: 18px;
+  border: 1px solid #a78bfa35;
+  background: #a78bfa0b;
+  padding: 14px;
+  border-radius: 13px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #c8c6ff;
+}
+
+footer {
+  text-align: center;
+  color: #7183a5;
+  font-size: 11px;
+  padding: 10px 15px 25px;
+}
+
+@media(max-width: 760px) {
+  header { padding: 17px 18px; }
+  main { padding: 23px 12px 30px; }
+  .layout { grid-template-columns: 1fr; }
+  .panel { padding: 13px; border-radius: 17px; }
+  .cell { font-size: clamp(12px, 4.1vw, 22px); }
+  .hero h1 { font-size: 31px; }
+  .numbers { gap: 4px; }
+  .num { padding: 11px 0; }
+  .side-panel { margin-top: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>
+    <div class="logo">SUDOKU<span>PRO</span></div>
+    <div class="tagline">THINK SHARP. PLAY SMART.</div>
+  </div>
+  <div class="pill">✦ BRAIN TRAINING</div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Master the <span>numbers.</span></h1>
+    <p>Your daily dose of logic, focus and brain power.</p>
+  </div>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="board-top">
+        <div>
+          <div class="label">Your puzzle</div>
+          <div style="font-weight:750;margin-top:5px">9 × 9 Sudoku</div>
+        </div>
+        <select id="difficulty" aria-label="Difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+
+      <div id="board" aria-label="Sudoku board"></div>
+
+      <div class="stats">
+        <div class="stat"><strong id="timer">00:00</strong><span>TIME</span></div>
+        <div class="stat"><strong id="mistakes">0/3</strong><span>MISTAKES</span></div>
+        <div class="stat"><strong id="filled">0%</strong><span>COMPLETE</span></div>
+      </div>
+
+      <div class="progress"><div id="progress"></div></div>
+
+      <div class="section-title">CHOOSE A NUMBER</div>
+      <div class="numbers" id="numbers"></div>
+
+      <div class="actions">
+        <button class="action" id="notesBtn">✎ Notes: OFF</button>
+        <button class="action" id="eraseBtn">⌫ Erase</button>
+        <button class="action" id="hintBtn">✦ Hint (3)</button>
+        <button class="action" id="checkBtn">✓ Check board</button>
+      </div>
+
+      <button class="primary" id="newBtn">＋ NEW GAME</button>
+      <div id="message" class="message" aria-live="polite">Select a cell to start playing.</div>
+    </section>
+
+    <aside class="panel side-panel">
+      <div class="side-heading">
+        <h2>Game Control</h2>
+        <span style="color:var(--cyan)">✧</span>
+      </div>
+
+      <div class="label">Difficulty level</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7">
+        Choose how challenging your next puzzle will be.
+      </p>
+
+      <div class="actions">
+        <button class="action" data-level="easy">🌱 Easy</button>
+        <button class="action active" data-level="medium">⚡ Medium</button>
+        <button class="action" data-level="hard">🔥 Hard</button>
+        <button class="action" data-level="expert">💎 Expert</button>
+      </div>
+
+      <div class="section-title">HOW TO PLAY</div>
+      <div class="rules">
+        <div>🔹 Fill every row with 1–9.</div>
+        <div>🔹 Fill every column with 1–9.</div>
+        <div>🔹 Each 3×3 box needs 1–9.</div>
+        <div>🔹 Never repeat a number in a row, column or box.</div>
+        <div>🔹 Use notes to remember possible numbers.</div>
+      </div>
+
+      <div class="tip">
+        <strong>💡 PRO TIP</strong><br>
+        Start with a row, column or box that has the most numbers filled in. Look for the missing number before guessing.
+      </div>
+
+      <div class="section-title">KEYBOARD SHORTCUTS</div>
+      <div class="rules">
+        <div><b>1–9</b> Enter a number</div>
+        <div><b>Arrow keys</b> Move around</div>
+        <div><b>Backspace</b> Erase a cell</div>
+        <div><b>N</b> Toggle notes</div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer> SUDOKU PRO · TRAIN YOUR MIND, ONE CELL AT A TIME </footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let solution = [];
+let puzzle = [];
+let values = [];
+let fixed = [];
+let notes = Array.from({length:81}, () => new Set());
+let selected = -1;
+let noteMode = false;
+let mistakes = 0;
+let hints = 3;
+let seconds = 0;
+let running = true;
+let gameOver = false;
+let clock = null;
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function makeSolution() {
+  const digits = shuffle([1,2,3,4,5,6,7,8,9]);
+  const bands = shuffle([0,1,2]);
+  const stacks = shuffle([0,1,2]);
+  const rows = bands.flatMap(b => shuffle([0,1,2]).map(r => b*3+r));
+  const cols = stacks.flatMap(s => shuffle([0,1,2]).map(c => s*3+c));
+
+  return rows.flatMap(r =>
+    cols.map(c => digits[(r*3 + Math.floor(r/3) + c) % 9])
+  );
+}
+
+function makePuzzle() {
+  solution = makeSolution();
+  puzzle = solution.slice();
+
+  const level = $('difficulty').value;
+  const clues = {easy:42, medium:34, hard:29, expert:25}[level];
+  const remove = 81 - clues;
+  shuffle(Array.from({length:81}, (_,i)=>i))
+    .slice(0,remove)
+    .forEach(i => puzzle[i] = 0);
+
+  values = puzzle.slice();
+  fixed = puzzle.map(n => n !== 0);
+  notes = Array.from({length:81}, () => new Set());
+  selected = -1;
+  mistakes = 0;
+  hints = 3;
+  seconds = 0;
+  running = true;
+  gameOver = false;
+
+  $('message').textContent = 'Select a cell to start playing.';
+  $('message').className = 'message';
+  render();
+  updateStats();
+  startClock();
+}
+
+function render() {
+  const board = $('board');
+  board.innerHTML = '';
+
+  for (let i = 0; i < 81; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'cell';
+    btn.type = 'button';
+    btn.dataset.i = i;
+    btn.setAttribute('aria-label',
+      `Row ${Math.floor(i/9)+1}, column ${i%9+1}, ${values[i] || 'empty'}`);
+
+    if (fixed[i]) btn.classList.add('given');
+    if (selected === i) btn.classList.add('selected');
+
+    if (selected >= 0) {
+      const sameRow = Math.floor(i/9) === Math.floor(selected/9);
+      const sameCol = i%9 === selected%9;
+      const sameBox = Math.floor(Math.floor(i/9)/3) ===
+        Math.floor(Math.floor(selected/9)/3) &&
+        Math.floor((i%9)/3) === Math.floor((selected%9)/3);
+
+      if (sameRow || sameCol || sameBox) btn.classList.add('related');
+      if (values[i] && values[i] === values[selected]) btn.classList.add('same');
+    }
+
+    if (values[i]) {
+      btn.textContent = values[i];
+      if (!fixed[i] && values[i] !== solution[i]) btn.classList.add('wrong');
+    } else if (notes[i].size) {
+      const n = document.createElement('span');
+      n.className = 'notes';
+      n.textContent = [...notes[i]].sort().join(' ');
+      btn.appendChild(n);
+    }
+
+    btn.addEventListener('click', () => {
+      if (gameOver) return;
+      selected = i;
+      render();
+    });
+
+    board.appendChild(btn);
+  }
+
+  $('numbers').innerHTML = '';
+  for (let n = 1; n <= 9; n++) {
+    const b = document.createElement('button');
+    b.className = 'num';
+    b.textContent = n;
+    b.addEventListener('click', () => enterNumber(n));
+    $('numbers').appendChild(b);
+  }
+
+  $('notesBtn').textContent = '✎ Notes: ' + (noteMode ? 'ON' : 'OFF');
+  $('notesBtn').classList.toggle('active', noteMode);
+  $('hintBtn').textContent = `✦ Hint (${hints})`;
+}
+
+function enterNumber(n) {
+  if (selected < 0 || fixed[selected] || gameOver) {
+    if (selected < 0) say('Select an empty cell first.');
+    return;
+  }
+
+  if (noteMode) {
+    if (values[selected]) return;
+    if (notes[selected].has(n)) notes[selected].delete(n);
+    else notes[selected].add(n);
+    render();
+    return;
+  }
+
+  if (values[selected] === n) return;
+
+  if (n !== solution[selected]) {
+    mistakes++;
+    say('Not quite! Try another number.', 'bad');
+    if (mistakes >= 3) {
+      gameOver = true;
+      running = false;
+      say('Game over! Start a new game to try again.', 'bad');
+    }
+  } else {
+    values[selected] = n;
+    notes[selected].clear();
+    notes.forEach(set => set.delete(n));
+    say('Nice move!', 'good');
+  }
+
+  checkWin();
+  render();
+  updateStats();
+}
+
+function erase() {
+  if (selected < 0 || fixed[selected] || gameOver) return;
+  values[selected] = 0;
+  notes[selected].clear();
+  render();
+  updateStats();
+  say('Cell cleared.');
+}
+
+function hint() {
+  if (selected < 0 || fixed[selected] || gameOver) {
+    say('Select an empty cell first.');
+    return;
+  }
+  if (hints <= 0) {
+    say('No hints remaining. Start a new game.', 'bad');
+    return;
+  }
+  if (values[selected] === solution[selected]) {
+    say('That cell is already correct.');
+    return;
+  }
+
+  values[selected] = solution[selected];
+  notes[selected].clear();
+  hints--;
+  say('Hint used! Keep going.', 'good');
+  checkWin();
+  render();
+  updateStats();
+}
+
+function checkBoard() {
+  if (gameOver) return;
+  const wrong = values.some((v,i) => v !== 0 && v !== solution[i]);
+  if (wrong) say('Some numbers are incorrect. Check the red cells.', 'bad');
+  else say('All entered numbers are correct so far!', 'good');
+}
+
+function checkWin() {
+  if (values.every((v,i) => v === solution[i])) {
+    gameOver = true;
+    running = false;
+    say('🏆 Amazing! You solved the Sudoku!', 'good');
+    clearInterval(clock);
+  }
+}
+
+function say(text, type='') {
+  $('message').textContent = text;
+  $('message').className = 'message ' + type;
+}
+
+function updateStats() {
+  $('mistakes').textContent = mistakes + '/3';
+  const count = values.filter(Boolean).length;
+  const percent = Math.round(count / 81 * 100);
+  $('filled').textContent = percent + '%';
+  $('progress').style.width = percent + '%';
+
+  $('numbers').querySelectorAll('button').forEach((b,i) => {
+    b.disabled = values.filter(v => v === i+1).length === 9;
+  });
+}
+
+function startClock() {
+  clearInterval(clock);
+  $('timer').textContent = '00:00';
+
+  clock = setInterval(() => {
+    if (!running || gameOver) return;
+    seconds++;
+    const m = String(Math.floor(seconds/60)).padStart(2,'0');
+    const s = String(seconds%60).padStart(2,'0');
+    $('timer').textContent = `${m}:${s}`;
+  },1000);
+}
+
+$('newBtn').addEventListener('click', makePuzzle);
+$('eraseBtn').addEventListener('click', erase);
+$('hintBtn').addEventListener('click', hint);
+$('checkBtn').addEventListener('click', checkBoard);
+
+$('notesBtn').addEventListener('click', () => {
+  noteMode = !noteMode;
+  render();
+  say(noteMode ? 'Notes mode enabled.' : 'Notes mode disabled.');
+});
+
+$('difficulty').addEventListener('change', () => {
+  document.querySelectorAll('[data-level]').forEach(b =>
+    b.classList.toggle('active', b.dataset.level === $('difficulty').value)
+  );
+  makePuzzle();
+});
+
+document.querySelectorAll('[data-level]').forEach(b => {
+  b.addEventListener('click', () => {
+    $('difficulty').value = b.dataset.level;
+    document.querySelectorAll('[data-level]').forEach(x =>
+      x.classList.toggle('active', x === b)
+    );
+    makePuzzle();
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if (gameOver) return;
+
+  if (/^[1-9]$/.test(e.key)) {
+    enterNumber(Number(e.key));
+    return;
+  }
+
+  if (e.key.toLowerCase() === 'n') {
+    noteMode = !noteMode;
+    render();
+  }
+
+  if (e.key === 'Backspace' || e.key === 'Delete') erase();
+
+  if (selected >= 0 && e.key.startsWith('Arrow')) {
+    e.preventDefault();
+    let r = Math.floor(selected/9);
+    let c = selected%9;
+    if (e.key === 'ArrowUp') r = (r+8)%9;
+    if (e.key === 'ArrowDown') r = (r+1)%9;
+    if (e.key === 'ArrowLeft') c = (c+8)%9;
+    if (e.key === 'ArrowRight') c = (c+1)%9;
+    selected = r*9+c;
+    render();
+  }
+});
+
+makePuzzle();
+</script>
+</body>
+</html>
