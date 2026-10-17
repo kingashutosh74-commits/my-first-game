@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NEON ARCADE</title>
+<title>NEON ARCADE — Five Games</title>
 
 <style>
 *{box-sizing:border-box}
@@ -111,6 +111,43 @@ canvas{
   .hero{padding-top:35px}.games{gap:14px}
   .card{padding:18px}.topbar{padding:12px}
 }
+
+#memory .mem-panel{background:#111831cc;border:1px solid #6269b35c;border-radius:22px;padding:16px;box-shadow:0 18px 55px #0006,inset 0 1px #ffffff12;backdrop-filter:blur(10px);max-width:980px;margin:18px auto}
+#memory .mem-scoreboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+#memory .mem-score{padding:13px 8px;background:#0b1126;border:1px solid #3b477c;border-radius:15px}
+#memory .mem-score .label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#aab5df}
+#memory .mem-score strong{display:block;font-size:26px;margin-top:4px}
+#memory .mem-turnbar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px 0 14px}
+#memory .mem-pill{padding:9px 14px;border-radius:999px;border:1px solid #4b5488;background:#10152b;color:#d9e1ff;font-size:13px}
+#memory .mem-pill.active{border-color:var(--cyan);box-shadow:0 0 18px #5cf4ff35;color:var(--cyan)}
+#memory #memStatus{min-height:27px;color:#dce4ff;font-weight:600;margin:10px 0}
+#memory #memBoard{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;max-width:720px;margin:14px auto 18px}
+#memory .mem-card{position:relative;aspect-ratio:1/1;min-width:0;border:1px solid #6768c8;border-radius:15px;background:linear-gradient(145deg,#292e68,#141a39);color:white;cursor:pointer;display:grid;place-items:center;box-shadow:0 7px 0 #080b1a,0 12px 18px #0005;transition:transform .18s,box-shadow .18s,border-color .18s;overflow:hidden;padding:0}
+#memory .mem-card:before{content:"";position:absolute;inset:0;background:linear-gradient(125deg,#ffffff13,transparent 45%,#a78bfa16);pointer-events:none}
+#memory .mem-card .face{font-size:clamp(22px,4vw,38px)}
+#memory .mem-card .back{font-size:clamp(20px,3vw,32px);color:#8c96e8;text-shadow:0 0 12px #8987ff}
+#memory .mem-card:hover:not(:disabled){transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 7px 0 #080b1a,0 0 22px #5cf4ff45}
+#memory .mem-card.revealed{background:linear-gradient(145deg,#075a78,#3d2b88);border-color:var(--cyan);box-shadow:0 0 20px #5cf4ff3d;animation:flip .22s ease-out}
+#memory .mem-card.matched{background:linear-gradient(145deg,#075b54,#123b45);border-color:#62ffc5;box-shadow:0 0 18px #62ffc540;cursor:default;animation:match .3s ease-out}
+#memory .mem-card:disabled{cursor:default}
+@keyframes flip{from{transform:rotateY(75deg) scale(.9)}to{transform:rotateY(0) scale(1)}}
+@keyframes match{50%{transform:scale(1.08)}}
+#memory .mem-controls{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+#memory .mem-action{border:0;border-radius:12px;padding:12px 17px;font-weight:800;cursor:pointer;color:#08101e;background:linear-gradient(90deg,var(--cyan),#9bdcff);box-shadow:0 5px 0 #236a88;transition:transform .15s}
+#memory .mem-action.secondary{background:linear-gradient(90deg,#c6b5ff,var(--purple));box-shadow:0 5px 0 #57419a}
+#memory .mem-note{font-size:12px;color:#909bc7;line-height:1.6;margin:15px auto 0;max-width:650px}
+#memory #memThinking{color:var(--purple);font-size:12px;min-height:18px;letter-spacing:1px}
+@media(max-width:560px){#memory .mem-panel{padding:10px}#memory #memBoard{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:390px}#memory .mem-card{border-radius:12px}#memory .mem-scoreboard{gap:6px}#memory .mem-score{padding:10px 4px}#memory .mem-score strong{font-size:22px}}
+
+
+.sudoku-stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}.sudoku-stat{padding:10px 15px;background:#171a35;border:1px solid #5652ad;border-radius:10px}
+#sdkBoard{display:grid;grid-template-columns:repeat(9,1fr);width:min(94vw,450px);margin:15px auto;border:2px solid #71eaff;border-radius:5px;overflow:hidden;box-shadow:0 0 20px #3933bb}
+.sdk-cell{aspect-ratio:1;min-width:0;padding:0;background:#11162c;color:#73f7ff;border:1px solid #303958;font-size:clamp(15px,4.5vw,24px);cursor:pointer}
+.sdk-cell.fixed{color:#fff;background:#202443;font-weight:bold}.sdk-cell.selected{background:#4841a0;box-shadow:inset 0 0 0 2px #8cffff}.sdk-cell.related{background:#22294c}.sdk-cell.same{background:#343b68}
+.sdk-cell:nth-child(3n){border-right:2px solid #7970ff}.sdk-cell:nth-child(9n){border-right:0}.sdk-cell:nth-child(n+19):nth-child(-n+27),.sdk-cell:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid #7970ff}
+#sdkNumbers{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;max-width:450px;margin:12px auto}.sdk-num{padding:12px 0;border-radius:8px;background:#22234b;color:white;border:1px solid #5652ad;cursor:pointer}.sdk-cell.wrong{color:#ff6b9a;background:#4b203d}
+@media(max-width:360px){#sdkNumbers{gap:3px}.sdk-num{padding:10px 0}}
+
 </style>
 </head>
 
@@ -153,8 +190,19 @@ canvas{
       <p>Outsmart your friend in this classic game.</p>
       <button onclick="showGame('tic')">PLAY NOW →</button>
     </article>
+
+    <article class="card">
+      <div class="emoji">🧠</div><small>AI • 04</small>
+      <h2>Memory Match AI</h2><p>Compete against a smart AI that remembers revealed cards.</p>
+      <button onclick="showGame('memory')">PLAY NOW →</button>
+    </article>
+    <article class="card">
+      <div class="emoji">🧩</div><small>PUZZLE • 05</small>
+      <h2>Neon Sudoku</h2><p>Solve a glowing number puzzle with hints and difficulty levels.</p>
+      <button onclick="showGame('sudoku')">PLAY NOW →</button>
+    </article>
   </div>
-  <footer>NEON ARCADE · BUILT FOR FUN</footer>
+  <footer>NEON ARCADE · FIVE GAMES · BUILT FOR FUN</footer>
 </div>
 
 <!-- RPS -->
@@ -192,6 +240,47 @@ canvas{
   <div id="ticMessage" class="message">Player X's turn</div>
   <div id="board" class="board"></div>
   <button onclick="resetTic()">↻ RESTART GAME</button>
+</section>
+
+<!-- SMART AI MEMORY GAME -->
+<section id="memory" class="screen">
+  <button class="back" onclick="goHome()">← HOME</button>
+  <h2>🧠 NEON MEMORY AI</h2>
+  <p class="hint">Find pairs against a smart computer that remembers cards it has seen.</p>
+  <section class="mem-panel">
+    <div class="mem-scoreboard">
+      <div class="mem-score"><span class="label">You</span><strong id="memPlayerScore">0</strong></div>
+      <div class="mem-score"><span class="label">Pairs left</span><strong id="memPairsLeft">12</strong></div>
+      <div class="mem-score"><span class="label">Smart AI</span><strong id="memAiScore">0</strong></div>
+    </div>
+    <div class="mem-turnbar">
+      <span id="memPlayerPill" class="mem-pill active">👤 Your turn</span>
+      <span id="memAiPill" class="mem-pill">🤖 AI turn</span>
+      <span class="mem-pill">Moves: <b id="memMoves">0</b></span>
+    </div>
+    <div id="memStatus" role="status">Your turn! Flip any two cards to find a pair.</div>
+    <div id="memThinking"></div>
+    <div id="memBoard" aria-label="Memory card board"></div>
+    <div class="mem-controls">
+      <button class="mem-action" onclick="memNewGame()">↻ New Game</button>
+      <button class="mem-action secondary" id="memSoundButton" onclick="memToggleSound()">🔊 Sound ON</button>
+    </div>
+    <p class="mem-note">Flip two cards per turn. Match a pair to score and play again. The AI learns card locations as they are revealed. Highest score wins!</p>
+  </section>
+</section>
+
+<!-- SUDOKU GAME -->
+<section id="sudoku" class="screen">
+ <button class="back" onclick="goHome()">← HOME</button>
+ <h2>🧩 NEON SUDOKU</h2>
+ <p class="hint">Fill every row, column, and 3×3 box with numbers 1–9.</p>
+ <div class="sudoku-stats"><div class="sudoku-stat">⏱️ <span id="sdkTime">00:00</span></div><div class="sudoku-stat">❌ Mistakes: <span id="sdkMistakes">0</span>/3</div></div>
+ <label for="sdkDifficulty">Difficulty: </label>
+ <select id="sdkDifficulty" onchange="sdkNewGame()"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
+ <div id="sdkBoard" aria-label="Sudoku board"></div>
+ <div id="sdkNumbers"></div>
+ <div class="actions"><button onclick="sdkHint()">💡 Hint</button><button onclick="sdkErase()">⌫ Erase</button><button onclick="sdkCheck()">✓ Check</button><button onclick="sdkNewGame()">🔄 New Game</button></div>
+ <div id="sdkMessage" class="message">Select an empty cell and choose a number.</div>
 </section>
 
 <script>
@@ -279,6 +368,8 @@ function showGame(id){
   document.getElementById('home').classList.add('hidden');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if(id==='memory')memNewGame();
+  if(id==='sudoku')sdkNewGame();
   if(id==='hockey'){
     drawHockey();
     if(!frameId)frameId=requestAnimationFrame(hockeyLoop);
@@ -571,6 +662,174 @@ canvas.addEventListener('pointerup',stopDrag);
 canvas.addEventListener('pointercancel',stopDrag);
 
 drawHockey();
+
+const SYMBOLS=["🚀","🎮","👑","💎","🐉","⚡","🦊","🌟","🪐","🧿","🔥","🦄"];
+let cards=[], playerTurn=true, locked=false, playerScore=0, aiScore=0, moves=0, pairsRemaining=12;
+let firstIndex=null, aiMemory=new Map(), soundOn=true, audioContext=null, gameOver=false, turnToken=0;
+
+const $=id=>document.getElementById(id);
+function audioReady(){try{audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();if(audioContext.state==="suspended")audioContext.resume();return audioContext}catch(e){return null}}
+function beep(freq=440,duration=.11,wave="sine",volume=.055){
+  if(!soundOn)return;const ac=audioReady();if(!ac)return;
+  const o=ac.createOscillator(),g=ac.createGain();o.type=wave;o.frequency.setValueAtTime(freq,ac.currentTime);
+  g.gain.setValueAtTime(volume,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+duration);
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+duration);
+}
+function sound(kind){
+  if(kind==="flip")beep(360,.07,"triangle");
+  if(kind==="match"){beep(620,.12);setTimeout(()=>beep(880,.16),80)}
+  if(kind==="miss"){beep(180,.12,"sine",.04)}
+  if(kind==="win"){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.22),i*100))}
+}
+function memToggleSound(){soundOn=!soundOn;$("memSoundButton").textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";if(soundOn)beep(650)}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function memNewGame(){
+  turnToken++;cards=shuffle([...SYMBOLS,...SYMBOLS]).map((symbol,index)=>({symbol,index,matched:false}));
+  playerTurn=true;locked=false;playerScore=0;aiScore=0;moves=0;pairsRemaining=SYMBOLS.length;firstIndex=null;aiMemory=new Map();gameOver=false;
+  $("memStatus").textContent="Your turn! Flip any two cards to find a pair.";
+  $("memThinking").textContent="";renderBoard();updateUI();
+}
+function renderBoard(){
+  const memBoard=$("memBoard");memBoard.innerHTML="";
+  cards.forEach((card,i)=>{
+    const b=document.createElement("button");b.className="mem-card";b.type="button";b.dataset.index=i;
+    b.innerHTML='<span class="back">✦</span>';b.setAttribute("aria-label","Hidden card");
+    b.onclick=()=>playerFlip(i);memBoard.appendChild(b);card.element=b;
+  });
+}
+function reveal(i,rememberForAI=false){
+  const c=cards[i],b=c.element;if(c.matched)return;
+  b.classList.add("revealed");b.innerHTML='<span class="face">'+c.symbol+'</span>';b.setAttribute("aria-label",c.symbol);b.disabled=true;
+  if(rememberForAI)remember(i,c.symbol);
+  sound("flip");
+}
+function hide(i){const c=cards[i];if(c.matched)return;const b=c.element;b.classList.remove("revealed");b.innerHTML='<span class="back">✦</span>';b.setAttribute("aria-label","Hidden card");b.disabled=false}
+function remember(i,symbol){if(!aiMemory.has(symbol))aiMemory.set(symbol,[]);const arr=aiMemory.get(symbol);if(!arr.includes(i)&&!cards[i].matched)arr.push(i)}
+function removeMemory(i){for(const [symbol,arr] of aiMemory){aiMemory.set(symbol,arr.filter(n=>n!==i))}}
+function updateUI(){
+  $("memPlayerScore").textContent=playerScore;$("memAiScore").textContent=aiScore;$("memPairsLeft").textContent=pairsRemaining;$("memMoves").textContent=moves;
+  $("memPlayerPill").classList.toggle("active",playerTurn&&!gameOver);$("memAiPill").classList.toggle("active",!playerTurn&&!gameOver);
+}
+function playerFlip(i){
+  if(gameOver||locked||!playerTurn||cards[i].matched||i===firstIndex)return;
+  audioReady();reveal(i,false);
+  if(firstIndex===null){firstIndex=i;return}
+  const a=firstIndex,b=i;firstIndex=null;moves++;updateUI();
+  if(cards[a].symbol===cards[b].symbol){resolveMatch(a,b,"player");}
+  else{
+    locked=true;$("memStatus").textContent="No match. The AI is studying the board…";
+    // The AI sees your revealed cards too, just like an opponent watching the game.
+    remember(a,cards[a].symbol);remember(b,cards[b].symbol);
+    const token=turnToken;
+    setTimeout(()=>{if(token!==turnToken)return;hide(a);hide(b);locked=false;playerTurn=false;updateUI();aiTurn(token)},850);
+  }
+}
+function resolveMatch(a,b,who){
+  cards[a].matched=cards[b].matched=true;cards[a].element.classList.add("matched");cards[b].element.classList.add("matched");
+  cards[a].element.disabled=true;cards[b].element.disabled=true;removeMemory(a);removeMemory(b);
+  pairsRemaining--;if(who==="player")playerScore++;else aiScore++;
+  sound("match");$("memStatus").textContent=who==="player"?"✨ Match! You get another turn.":"🤖 AI found a pair and gets another turn!";
+  updateUI();
+  if(pairsRemaining===0){finishGame();return}
+  if(who==="player"){playerTurn=true;updateUI()}
+  else {playerTurn=false;updateUI();const token=turnToken;setTimeout(()=>aiTurn(token),650)}
+}
+function finishGame(){
+  gameOver=true;locked=true;updateUI();
+  if(playerScore>aiScore){$("memStatus").textContent=`🏆 YOU WIN! ${playerScore} – ${aiScore}`;sound("win")}
+  else if(aiScore>playerScore){$("memStatus").textContent=`🤖 AI WINS! ${aiScore} – ${playerScore}. Try again!`;sound("miss")}
+  else {$("memStatus").textContent=`🤝 DRAW! Both scored ${playerScore}.`;sound("match")}
+  $("memThinking").textContent="Game complete";
+}
+function aiTurn(token){
+  if(token!==turnToken||gameOver)return;
+  playerTurn=false;locked=true;updateUI();$("memStatus").textContent="🤖 Smart AI is thinking…";$("memThinking").textContent="SCANNING MEMORY • ANALYSING PAIRS";
+  setTimeout(()=>{if(token!==turnToken||gameOver)return;aiChooseFirst(token)},650);
+}
+function available(){return cards.map((c,i)=>i).filter(i=>!cards[i].matched&&!cards[i].element.classList.contains("revealed"))}
+function knownPair(){
+  for(const [symbol,arr] of aiMemory){
+    const valid=arr.filter(i=>!cards[i].matched&&!cards[i].element.classList.contains("revealed"));
+    if(valid.length>=2)return [valid[0],valid[1]];
+  }return null;
+}
+function aiChooseFirst(token){
+  if(token!==turnToken||gameOver)return;
+  let pair=knownPair(),i;
+  if(pair){i=pair[0];$("memThinking").textContent="MEMORY MATCH FOUND"}
+  else{
+    const opts=available();if(!opts.length){finishGame();return}
+    i=opts[Math.floor(Math.random()*opts.length)];$("memThinking").textContent="SEARCHING UNKNOWN CARDS";
+  }
+  aiRevealAndContinue(i,token);
+}
+function aiRevealAndContinue(i,token){
+  if(token!==turnToken||gameOver)return;
+  reveal(i,true);const symbol=cards[i].symbol;
+  // If a matching card is known, choose it immediately.
+  const known=(aiMemory.get(symbol)||[]).find(j=>j!==i&&!cards[j].matched&&!cards[j].element.classList.contains("revealed"));
+  setTimeout(()=>{
+    if(token!==turnToken||gameOver)return;
+    let j=known;
+    if(j===undefined){
+      const opts=available().filter(n=>n!==i);
+      if(!opts.length){locked=false;playerTurn=true;updateUI();return}
+      j=opts[Math.floor(Math.random()*opts.length)];
+    }
+    reveal(j,true);moves++;updateUI();
+    if(cards[i].symbol===cards[j].symbol)resolveMatch(i,j,"ai");
+    else{
+      remember(i,cards[i].symbol);remember(j,cards[j].symbol);sound("miss");
+      $("memStatus").textContent="AI found no pair. Your turn next!";
+      $("memThinking").textContent="MEMORY UPDATED";
+      setTimeout(()=>{if(token!==turnToken||gameOver)return;hide(i);hide(j);locked=false;playerTurn=true;$("memThinking").textContent="";updateUI();},850);
+    }
+  },550);
+}
+memNewGame();
+
+
+/* ---------- SUDOKU ---------- */
+let sdkPuzzle=[],sdkSolution=[],sdkOriginal=[],sdkSelected=-1,sdkMistakes=0,sdkSeconds=0,sdkClock=null,sdkFinished=false;
+const sdkEl=id=>document.getElementById(id);
+function sdkShuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sdkPattern(r,c){return (r*3+Math.floor(r/3)+c)%9;}
+function sdkMakeSolution(){
+ const rows=sdkShuffle([0,1,2]).flatMap(g=>sdkShuffle([0,1,2]).map(x=>g*3+x));
+ const cols=sdkShuffle([0,1,2]).flatMap(g=>sdkShuffle([0,1,2]).map(x=>g*3+x));
+ const digits=sdkShuffle([1,2,3,4,5,6,7,8,9]);
+ return Array.from({length:9},(_,r)=>Array.from({length:9},(_,c)=>digits[sdkPattern(rows[r],cols[c])]));
+}
+function sdkNewGame(){
+ clearInterval(sdkClock);sdkSeconds=0;sdkMistakes=0;sdkSelected=-1;sdkFinished=false;
+ sdkEl('sdkTime').textContent='00:00';sdkEl('sdkMistakes').textContent='0';
+ sdkSolution=sdkMakeSolution();sdkPuzzle=sdkSolution.map(row=>row.slice());
+ const remove={easy:35,medium:45,hard:53}[sdkEl('sdkDifficulty').value];
+ sdkShuffle(Array.from({length:81},(_,i)=>i)).slice(0,remove).forEach(i=>sdkPuzzle[Math.floor(i/9)][i%9]=0);
+ sdkOriginal=sdkPuzzle.map(row=>row.map(v=>v!==0));sdkEl('sdkMessage').textContent='Select an empty cell and choose a number.';sdkDraw();
+ sdkClock=setInterval(()=>{if(!sdkFinished){sdkSeconds++;sdkEl('sdkTime').textContent=String(Math.floor(sdkSeconds/60)).padStart(2,'0')+':'+String(sdkSeconds%60).padStart(2,'0');}},1000);
+}
+function sdkDraw(){
+ const board=sdkEl('sdkBoard');board.innerHTML='';
+ for(let r=0;r<9;r++)for(let c=0;c<9;c++){
+  const i=r*9+c,v=sdkPuzzle[r][c],b=document.createElement('button');b.className='sdk-cell';
+  if(sdkOriginal[r][c])b.classList.add('fixed');
+  if(i===sdkSelected)b.classList.add('selected');else if(sdkSelected>=0){const sr=Math.floor(sdkSelected/9),sc=sdkSelected%9;if(r===sr||c===sc||(Math.floor(r/3)===Math.floor(sr/3)&&Math.floor(c/3)===Math.floor(sc/3)))b.classList.add('related');if(v&&v===sdkPuzzle[sr][sc])b.classList.add('same');}
+  b.textContent=v||'';b.onclick=()=>{if(!sdkFinished){sdkSelected=i;sdkDraw();}};board.appendChild(b);
+ }
+ const numbers=sdkEl('sdkNumbers');numbers.innerHTML='';for(let n=1;n<=9;n++){const b=document.createElement('button');b.className='sdk-num';b.textContent=n;b.onclick=()=>sdkEnter(n);numbers.appendChild(b);}
+}
+function sdkEnter(n){
+ if(sdkFinished)return;if(sdkSelected<0){sdkEl('sdkMessage').textContent='First select an empty cell.';return;}
+ const r=Math.floor(sdkSelected/9),c=sdkSelected%9;if(sdkOriginal[r][c]){sdkEl('sdkMessage').textContent='That cell is locked.';return;}
+ if(sdkSolution[r][c]!==n){sdkMistakes++;sdkEl('sdkMistakes').textContent=sdkMistakes;sfx('hit');if(sdkMistakes>=3){sdkFinished=true;clearInterval(sdkClock);sdkEl('sdkMessage').textContent='Game over! Press New Game to try again.';}else sdkEl('sdkMessage').textContent='Not quite! Try another number.';return;}
+ sdkPuzzle[r][c]=n;sfx('move');if(sdkPuzzle.every((row,rr)=>row.every((v,cc)=>v===sdkSolution[rr][cc]))){sdkFinished=true;clearInterval(sdkClock);sdkEl('sdkMessage').textContent='🏆 Sudoku solved! Amazing work!';sfx('win');}else sdkEl('sdkMessage').textContent='Correct! Keep going.';sdkDraw();
+}
+function sdkHint(){if(sdkFinished)return;if(sdkSelected<0){sdkEl('sdkMessage').textContent='Select an empty cell first.';return;}const r=Math.floor(sdkSelected/9),c=sdkSelected%9;if(sdkOriginal[r][c]){sdkEl('sdkMessage').textContent='Choose an empty cell.';return;}sdkPuzzle[r][c]=sdkSolution[r][c];sfx('score');if(sdkPuzzle.every((row,rr)=>row.every((v,cc)=>v===sdkSolution[rr][cc]))){sdkFinished=true;clearInterval(sdkClock);sdkEl('sdkMessage').textContent='🏆 Sudoku solved!';}else sdkEl('sdkMessage').textContent='Hint used!';sdkDraw();}
+function sdkErase(){if(sdkFinished||sdkSelected<0)return;const r=Math.floor(sdkSelected/9),c=Math.floor(sdkSelected%9);if(!sdkOriginal[r][c]){sdkPuzzle[r][c]=0;sdkDraw();}}
+function sdkCheck(){if(sdkFinished)return;let wrong=false,empty=false;for(let r=0;r<9;r++)for(let c=0;c<9;c++){if(!sdkPuzzle[r][c])empty=true;else if(sdkPuzzle[r][c]!==sdkSolution[r][c])wrong=true;}sdkEl('sdkMessage').textContent=wrong?'Some numbers are incorrect.':empty?'So far, so good! Keep filling the grid.':'🏆 Sudoku solved!';if(!wrong&&!empty){sdkFinished=true;clearInterval(sdkClock);sfx('win');}}
+document.addEventListener('keydown',e=>{if(e.key>='1'&&e.key<='9'&&document.getElementById('sudoku').classList.contains('active'))sdkEnter(Number(e.key));if((e.key==='Backspace'||e.key==='Delete')&&document.getElementById('sudoku').classList.contains('active'))sdkErase();});
+
 </script>
 </body>
 </html>
